@@ -1,0 +1,13 @@
+credentials:
+  usernames:
+    desi:
+      email: samuel.wehrli@gmail.com
+      name: Samuel Wehrli
+      password: $2b$12$8lKou4sv.9mqMyCV.i/LbevoaFk0fW19hxdDneYGSPu3Wna./m.Ou # To be replaced with hashed password
+    guest:
+      name: Gast
+      password: $2b$12$O.wrCJM64LxFUk5jNDEEjugvnYie1U4j3y7dTnV2yhvJKLwhncAt6 # To be replaced with hashed password
+cookie:
+  expiry_days: 30  # number of days until password is asked again
+  key: JgDyEoKUNItM5prxo194jDeLYzVzmYE6 # Must be string, use https://randomkeygen.com/
+  name: streamlitcookie
