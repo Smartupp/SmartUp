@@ -74,16 +74,19 @@ if selected_tab == "Noten eingeben":
     st.header("Wow meine Noten!")
     st.subheader("Noten eingeben")
     semester = st.number_input("Semester", min_value=1, max_value=10, step=1, value=1)
-    subject = st.text_input("Fach", value="Mathematik")
+    subject = st.text_input("Fach", value="")
     ects = st.number_input("ECTS", min_value=1, max_value=30, step=1, value=1)
-    grade = st.selectbox("Note", list(grading_system.keys()), index=9)
-    gewichtung = st.number_input("Gewichtung", min_value=1, max_value=10, step=1, value=1)
+    grade = st.selectbox("Note", list(grading_system.keys()), index=8)
+    gewichtung = st.number_input("Gewichtung", min_value=0.05, max_value=1.0, step=0.05, value=1.0)
     submit_button = st.button("Hinzufügen")
 
+    data_new = {"Fach": subject, "Note": float(grade), "ECTS": ects, "Gewichtung": gewichtung, "Semester": semester}
+    df = pd.DataFrame(data_new, index=[0])
+    fin_df = pd.concat([data, df], ignore_index=True)
+   
     # Daten in DataFrame speichern
     if submit_button:
-        data = data.append({"Fach": subject, "Note": float(grade), "ECTS": ects, "Gewichtung": gewichtung, "Semester": semester}, ignore_index=True)
-        save_key(api_key, bin_id, username, data.to_dict(orient='records'))
+        save_key(api_key, bin_id, username, fin_df.to_dict(orient='records'))
         st.write("Note hinzugefügt")
 
 # Tab: Notenansicht
@@ -170,113 +173,3 @@ elif selected_tab == "Noten löschen":
             save_key(api_key, bin_id, username, data.to_dict(orient='records'))
             st.success("Alle Daten erfolgreich gelöscht")
 
-
-# # dataframe kreieren um die Noten zu speichern
-# if grades_data:
-#     grades_df = pd.DataFrame(grades_data)
-# else:
-#     grades_df = pd.DataFrame(columns=['Fach', 'Note', 'Gewichtung'])
-
-
-# # Funktion zum Löschen einer spezifischen Note aus der JSON-Datei
-# def delete_grade(Fach, Note, Gewichtung):
-#     data = load_data()
-#     for entry in data:
-#         if entry["Fach"] == Fach and entry["Note"] == Note and entry['Gewichtung'] == Gewichtung:
-#             data.remove(entry)
-#     save_key(api_key, bin_id, username, data)
-
-#deletegrade_button = st.button('Eine Noten löschen')
-#if deletegrade_button:
- #   delete_grade()
-  #  st.write('Die Note wurden gelöscht.')
-    
-# # Funktion um den Durchschnitt der einzelnen Fächer zu berrechnen
-# def compute_average_grade(df):
-#     df['Note'] = df['Note'].astype(float) # Convert the grade column to float
-#     df['Gewichtung'] = df['Gewichtung'].astype(float) # Convert the weight column to float
-#     df['Durchschnitt'] = df['Note'] * df['Gewichtung'] # Compute the weighted grade
-#     avg_df = df.groupby(['Fach'])['Durchschnitt', 'Gewichtung'].sum()
-#     avg_df['Notendurchschnitt'] = avg_df['Durchschnitt'] / avg_df['Gewichtung'] # Compute the average grade
-#     avg_df.drop(columns=['Durchschnitt', 'Gewichtung'], inplace=True)
-#     avg_df['Notendurchschnitt'] = avg_df['Notendurchschnitt'].apply(lambda x: '{:.1f}'.format(x)) # Format the average grade
-#     avg_df.reset_index(inplace=True)
-#     return avg_df
-
-
-# # Das layout von der App
-# st.title('Füge deine Noten ein:')
-# course_name = st.text_input('Fach')
-# grade = st.selectbox('Deine Note', list(grading_system.keys()))
-# weight = st.number_input('Gewichtung der Note', min_value=0.0, max_value=1.0, value=1.0, step=0.05)
-# submit_button = st.button('Einreichen')
-# if submit_button:
-#     grades_df = grades_df.append({'Fach': course_name, 'Note': grade, 'Gewichtung': weight}, ignore_index=True)
-#     avg_df = compute_average_grade(grades_df)
-#     st.write(avg_df)
-#     st.write(grades_df)
-#     grades_data = grades_df.to_dict('records')
-#     save_key(api_key, bin_id, username, grades_df)
-
-    
-# # Funktion zum Hervorheben von Noten in einer Tabelle
-# def highlight_grades(df):
-#     def highlight_color(val):
-#         if isinstance(val, str):
-#             return ''
-#         elif val >= 4:
-#             return 'color: green'
-#         else:
-#             return 'color: red'
-#
-#     return df.style.applymap(highlight_color, subset=['Note', 'Durchschnitt'])
-#
-# # Laden der Daten aus der JSON-Datei und Erstellung des DataFrame
-# #data = load_key(api_key, bin_id, username)
-# df = pd.DataFrame(grades_df)
-#
-#
-#
-# # Berechnung des Durchschnitts für jeden Kurs
-# df['Durchschnitt'] = df.groupby('Fach')['Note'].transform('mean')
-#
-# # Hervorheben der Noten in der Tabelle
-# highlighted_df = highlight_grades(df)
-#
-# # Anzeigen der formatierten Tabelle
-# st.dataframe(highlighted_df, height=500)
-
-# # Darstellung im App
-#
-# st.header("Wunsch Note")
-# st.write("Hier kannst du berrechnen was für eine Note du noch erziehlen musst um deinen gewünschten Durchschnitt zu erreichen.")
-# st.write("Beachte, dass die Gewichtung nicht über 100% in dem Fach betragen sollte.")
-#
-# # Funktion zur Berechnung der benötigten Note für einen gewünschten Durchschnitt
-# def calculate_required_grade(df, subject, desired_avg):
-#     current_avg = df[df['Fach'] == subject]['Durchschnitt'].iloc[0]
-#     remaining_weight = 1 - df[df['Fach'] == subject]['Gewichtung'].iloc[0]
-#     required_grade = (desired_avg - (current_avg * remaining_weight)) / df[df['Fach'] == subject]['Gewichtung'].iloc[0]
-#     return required_grade
-#
-# data = load_key(api_key, bin_id, username)
-# df = pd.DataFrame(data)
-#
-# # Berechnung des Durchschnitts für jeden Kurs
-# df['Durchschnitt'] = df.groupby('Fach')['Note'].transform('mean')
-#
-# # Anzeige des Eingabeformulars
-# with st.form('calculate_grade'):
-#     subject = st.selectbox('Fach auswählen', df['Fach'].unique())
-#     desired_avg = st.number_input('Gewünschter Durchschnitt', min_value=1.0, max_value=6.0, value=4.0)
-#     submit_button = st.form_submit_button('Berechnen')
-#
-# # Berechnung der benötigten Note und Anzeige des Ergebnisses
-# if submit_button:
-#     required_grade = calculate_required_grade(df, subject, desired_avg)
-#     message = f"Um einen Durchschnitt von {desired_avg} im Fach {subject} zu erreichen, benötigen Sie eine Note von {required_grade:.1f}"
-#     st.write(message)
-
-
-
-# save_key(api_key, bin_id, username, data)
